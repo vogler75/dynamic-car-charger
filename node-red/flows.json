@@ -1,0 +1,548 @@
+[
+    {
+        "id": "c8d1fef8.1a7e2",
+        "type": "tab",
+        "label": "Charger",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "785ade74.7675f",
+        "type": "ui_switch",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "label": "Auto-Charge",
+        "tooltip": "",
+        "group": "84dff688.d12718",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 510,
+        "y": 60,
+        "wires": [
+            [
+                "443f7b77.0bcac4"
+            ]
+        ]
+    },
+    {
+        "id": "dc9a9036.59722",
+        "type": "mqtt in",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "topic": "Charger/config",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "4c530e7e.e8b0b",
+        "x": 140,
+        "y": 60,
+        "wires": [
+            [
+                "8c0e27b3.92c618"
+            ]
+        ]
+    },
+    {
+        "id": "a2fb4cd5.e33e",
+        "type": "mqtt out",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "topic": "Charger/config",
+        "qos": "2",
+        "retain": "true",
+        "broker": "4c530e7e.e8b0b",
+        "x": 940,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "e6d63e32.d5ec3",
+        "type": "debug",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1090,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "8c0e27b3.92c618",
+        "type": "function",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "func": "flow.set(\"Mode\", msg.payload.Mode);\nreturn { payload: msg.payload.Mode > 0 };",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 320,
+        "y": 60,
+        "wires": [
+            [
+                "785ade74.7675f"
+            ]
+        ]
+    },
+    {
+        "id": "443f7b77.0bcac4",
+        "type": "function",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "func": "value_old = flow.get(\"Mode\");\nvalue_new = msg.payload ? 1 : 0;\nif ( value_old != value_new ) {\n    return { payload: { Mode: value_new }};\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 720,
+        "y": 60,
+        "wires": [
+            [
+                "a2fb4cd5.e33e"
+            ]
+        ]
+    },
+    {
+        "id": "c444e90a.000a08",
+        "type": "ui_gauge",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "group": "84dff688.d12718",
+        "order": 1,
+        "width": "7",
+        "height": "3",
+        "gtype": "gage",
+        "title": "Flow",
+        "label": "Watt",
+        "format": "{{value}}",
+        "min": "-4000",
+        "max": "4000",
+        "colors": [
+            "#b30000",
+            "#e6e600",
+            "#52cb3a"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "className": "",
+        "x": 630,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "c80ed39c.81933",
+        "type": "mqtt in",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "topic": "Original/PV/Calc/FlowWatt",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "4c530e7e.e8b0b",
+        "x": 170,
+        "y": 180,
+        "wires": [
+            [
+                "c0c4b415.286b18"
+            ]
+        ]
+    },
+    {
+        "id": "c0c4b415.286b18",
+        "type": "function",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "func": "return { payload: Math.round(-msg.payload.Value) };",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 420,
+        "y": 180,
+        "wires": [
+            [
+                "c444e90a.000a08",
+                "675bb781.026618"
+            ]
+        ]
+    },
+    {
+        "id": "5fc853a0.e8ab3c",
+        "type": "mqtt in",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "topic": "go-eCharger/018455/status",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "4c530e7e.e8b0b",
+        "x": 180,
+        "y": 360,
+        "wires": [
+            [
+                "48609b95.804504",
+                "1056c879.5b7ab8",
+                "93764f50.b6252",
+                "e2562f09.c2dbf",
+                "ccef578.a44a6a8"
+            ]
+        ]
+    },
+    {
+        "id": "48609b95.804504",
+        "type": "function",
+        "z": "c8d1fef8.1a7e2",
+        "name": "Status",
+        "func": "value = msg.payload.car\nswitch (value) {\n    case \"1\": text = \"Bereit, kein Fahrzeug\"; break;\n    case \"2\": text = \"Fahrzeug lädt\"; break;\n    case \"3\": text = \"Warte auf Fahrzeug\"; break;\n    case \"4\": text = \"Ladung beendet, KFZ verbunden\"; break;\n    default: text = \"?\"\n}\nreturn { payload: text };",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 430,
+        "y": 420,
+        "wires": [
+            [
+                "ad2b1afd.c1eae8"
+            ]
+        ]
+    },
+    {
+        "id": "ad2b1afd.c1eae8",
+        "type": "ui_text",
+        "z": "c8d1fef8.1a7e2",
+        "group": "84dff688.d12718",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Status",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 630,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "1056c879.5b7ab8",
+        "type": "function",
+        "z": "c8d1fef8.1a7e2",
+        "name": "Charging",
+        "func": "value = msg.payload.alw\nflow.set(\"alw\", value);\nswitch (value) {\n    case \"1\": return { payload: true };\n    default: return { payload: false };\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 440,
+        "y": 360,
+        "wires": [
+            [
+                "f6c8ad9.c447e5"
+            ]
+        ]
+    },
+    {
+        "id": "31c25399.b567ec",
+        "type": "ui_text",
+        "z": "c8d1fef8.1a7e2",
+        "group": "84dff688.d12718",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Geladen",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 640,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "93764f50.b6252",
+        "type": "function",
+        "z": "c8d1fef8.1a7e2",
+        "name": "Geladen",
+        "func": "value = parseInt(msg.payload.dws) / 60.0 / 60.0 / 100.0;\nkm = value * 100.0 / 20.0; /* 20kWh pro 100km Verbrauch */\nreturn { payload: value.toFixed(3) + \" kWh \" + km.toFixed(2) + \" km\" };",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 440,
+        "y": 480,
+        "wires": [
+            [
+                "31c25399.b567ec"
+            ]
+        ]
+    },
+    {
+        "id": "e2562f09.c2dbf",
+        "type": "function",
+        "z": "c8d1fef8.1a7e2",
+        "name": "Energie",
+        "func": "value = (parseInt(msg.payload.nrg[7]) + parseInt(msg.payload.nrg[8]) + parseInt(msg.payload.nrg[9]))*100;\nkmh = value / 200.0; /* 20kWh pro 100km Verbrauch (20*1000/100) */\nreturn { payload: value + \" Watt \" + kmh.toFixed(2) + \" km/h\" };",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 440,
+        "y": 540,
+        "wires": [
+            [
+                "c2d07f68.fc09b"
+            ]
+        ]
+    },
+    {
+        "id": "c2d07f68.fc09b",
+        "type": "ui_text",
+        "z": "c8d1fef8.1a7e2",
+        "group": "84dff688.d12718",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Ladeleistung",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 650,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "675bb781.026618",
+        "type": "ui_chart",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "group": "84dff688.d12718",
+        "order": 8,
+        "width": 0,
+        "height": 0,
+        "label": "Flow",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "-2000",
+        "ymax": "4000",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 630,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "92fb6956.83c978",
+        "type": "function",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "func": "value_old = flow.get(\"alw\");\nvalue_new = msg.payload ? \"1\" : \"0\";\nif ( value_old != value_new ) {\n    return { payload: \"alw=\"+value_new };\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 840,
+        "y": 360,
+        "wires": [
+            [
+                "202c53a0.e81d0c"
+            ]
+        ]
+    },
+    {
+        "id": "f6c8ad9.c447e5",
+        "type": "ui_switch",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "label": "Laden",
+        "tooltip": "",
+        "group": "84dff688.d12718",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 630,
+        "y": 360,
+        "wires": [
+            [
+                "92fb6956.83c978"
+            ]
+        ]
+    },
+    {
+        "id": "202c53a0.e81d0c",
+        "type": "mqtt out",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "topic": "go-eCharger/018455/cmd/req",
+        "qos": "2",
+        "retain": "true",
+        "broker": "4c530e7e.e8b0b",
+        "x": 1090,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "ccef578.a44a6a8",
+        "type": "function",
+        "z": "c8d1fef8.1a7e2",
+        "name": "Ampere",
+        "func": "value = parseInt(msg.payload.amp);\nflow.set(\"amp\",  value);\nreturn { payload: value };",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 440,
+        "y": 600,
+        "wires": [
+            [
+                "9e5bce78.7c613"
+            ]
+        ]
+    },
+    {
+        "id": "9e5bce78.7c613",
+        "type": "ui_slider",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "label": "Ampere",
+        "tooltip": "",
+        "group": "84dff688.d12718",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": "6",
+        "max": "16",
+        "step": 1,
+        "className": "",
+        "x": 640,
+        "y": 600,
+        "wires": [
+            [
+                "89672dc3.b7611"
+            ]
+        ]
+    },
+    {
+        "id": "89672dc3.b7611",
+        "type": "function",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "func": "value_old = flow.get(\"amp\");\nvalue_new = msg.payload;\nif ( value_old != value_new ) {\n    return { payload: \"amx=\"+value_new };\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 840,
+        "y": 600,
+        "wires": [
+            [
+                "e6d63e32.d5ec3",
+                "202c53a0.e81d0c"
+            ]
+        ]
+    },
+    {
+        "id": "84dff688.d12718",
+        "type": "ui_group",
+        "name": "Charger",
+        "tab": "71b60aacd9a8e005",
+        "order": 1,
+        "disp": true,
+        "width": "7",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "4c530e7e.e8b0b",
+        "type": "mqtt-broker",
+        "name": "MQTT",
+        "broker": "192.168.1.3",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": false,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": ""
+    },
+    {
+        "id": "71b60aacd9a8e005",
+        "type": "ui_tab",
+        "name": "Charger",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
