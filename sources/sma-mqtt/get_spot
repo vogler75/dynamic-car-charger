@@ -1,0 +1,11 @@
+cd /proj/smadata
+
+x=MyPlant-Spot-`date +%Y%m%d`.csv
+
+echo "------------------------------------------------------------------------" >> $0.out
+echo `date` >> $0.out
+/usr/local/bin/SMAspot -finq -ad0 -am0 -ac3 -acd5000 $* >> $0.out 2>&1
+echo `date`>> $0.out
+
+tail -n 100 data/$x > data/MyPlant-Spot-LastValues.csv
+

@@ -1,0 +1,14 @@
+cd /proj/smadata
+
+echo "------------------------------------------------------------------------" >> $0.out
+echo `date` >> $0.out
+/usr/local/bin/SMAspot -finq -ad0 -am1 > $0.out 2>&1
+echo `date`>> $0.out
+
+x=MyPlant-`date +%Y%m`.csv
+cp data/$x oracle/days.csv
+
+ping -c 1 database > /dev/null
+if [ $? -eq 0 ]; then
+  scp oracle/days.csv database:/proj/smadata/oracle/days.csv
+fi
