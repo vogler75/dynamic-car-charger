@@ -1,0 +1,1 @@
+lib/json-simple-1.1.1.jar:lib/pi4j-core-1.1.jar:lib/mysql-connector-java-5.1.43.jar:lib/org.eclipse.paho.client.mqttv3-1.1.1.jar:lib/jca-2.3.6.jar
