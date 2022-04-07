@@ -7,40 +7,6 @@
         "info": ""
     },
     {
-        "id": "785ade74.7675f",
-        "type": "ui_switch",
-        "z": "c8d1fef8.1a7e2",
-        "name": "",
-        "label": "Auto-Charge",
-        "tooltip": "",
-        "group": "84dff688.d12718",
-        "order": 2,
-        "width": 0,
-        "height": 0,
-        "passthru": true,
-        "decouple": "false",
-        "topic": "topic",
-        "topicType": "msg",
-        "style": "",
-        "onvalue": "true",
-        "onvalueType": "bool",
-        "onicon": "",
-        "oncolor": "",
-        "offvalue": "false",
-        "offvalueType": "bool",
-        "officon": "",
-        "offcolor": "",
-        "animate": false,
-        "className": "",
-        "x": 510,
-        "y": 60,
-        "wires": [
-            [
-                "443f7b77.0bcac4"
-            ]
-        ]
-    },
-    {
         "id": "dc9a9036.59722",
         "type": "mqtt in",
         "z": "c8d1fef8.1a7e2",
@@ -82,8 +48,8 @@
         "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1090,
-        "y": 520,
+        "x": 1050,
+        "y": 160,
         "wires": []
     },
     {
@@ -91,7 +57,7 @@
         "type": "function",
         "z": "c8d1fef8.1a7e2",
         "name": "",
-        "func": "flow.set(\"Mode\", msg.payload.Mode);\nreturn { payload: msg.payload.Mode > 0 };",
+        "func": "flow.set(\"Mode\", msg.payload.Mode);\nreturn { payload: msg.payload.Mode };",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -100,7 +66,7 @@
         "y": 60,
         "wires": [
             [
-                "785ade74.7675f"
+                "74e46d90.d8e3dc"
             ]
         ]
     },
@@ -109,7 +75,7 @@
         "type": "function",
         "z": "c8d1fef8.1a7e2",
         "name": "",
-        "func": "value_old = flow.get(\"Mode\");\nvalue_new = msg.payload ? 1 : 0;\nif ( value_old != value_new ) {\n    return { payload: { Mode: value_new }};\n}",
+        "func": "value_old = flow.get(\"Mode\");\nvalue_new = msg.payload;\nif ( value_old != value_new ) {\n    return { payload: { Mode: value_new }};\n}",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -118,7 +84,8 @@
         "y": 60,
         "wires": [
             [
-                "a2fb4cd5.e33e"
+                "a2fb4cd5.e33e",
+                "e6d63e32.d5ec3"
             ]
         ]
     },
@@ -229,7 +196,7 @@
         "type": "ui_text",
         "z": "c8d1fef8.1a7e2",
         "group": "84dff688.d12718",
-        "order": 4,
+        "order": 5,
         "width": 0,
         "height": 0,
         "name": "",
@@ -264,7 +231,7 @@
         "type": "ui_text",
         "z": "c8d1fef8.1a7e2",
         "group": "84dff688.d12718",
-        "order": 7,
+        "order": 8,
         "width": 0,
         "height": 0,
         "name": "",
@@ -317,7 +284,7 @@
         "type": "ui_text",
         "z": "c8d1fef8.1a7e2",
         "group": "84dff688.d12718",
-        "order": 5,
+        "order": 6,
         "width": 0,
         "height": 0,
         "name": "",
@@ -335,7 +302,7 @@
         "z": "c8d1fef8.1a7e2",
         "name": "",
         "group": "84dff688.d12718",
-        "order": 8,
+        "order": 9,
         "width": 0,
         "height": 0,
         "label": "Flow",
@@ -399,7 +366,7 @@
         "label": "Laden",
         "tooltip": "",
         "group": "84dff688.d12718",
-        "order": 3,
+        "order": 4,
         "width": 0,
         "height": 0,
         "passthru": true,
@@ -464,7 +431,7 @@
         "label": "Ampere",
         "tooltip": "",
         "group": "84dff688.d12718",
-        "order": 6,
+        "order": 7,
         "width": 0,
         "height": 0,
         "passthru": true,
@@ -497,21 +464,52 @@
         "y": 600,
         "wires": [
             [
-                "e6d63e32.d5ec3",
                 "202c53a0.e81d0c"
             ]
         ]
     },
     {
-        "id": "84dff688.d12718",
-        "type": "ui_group",
-        "name": "Charger",
-        "tab": "71b60aacd9a8e005",
-        "order": 1,
-        "disp": true,
-        "width": "7",
-        "collapse": false,
-        "className": ""
+        "id": "74e46d90.d8e3dc",
+        "type": "ui_dropdown",
+        "z": "c8d1fef8.1a7e2",
+        "name": "",
+        "label": "Charge Mode",
+        "tooltip": "",
+        "place": "Select option",
+        "group": "84dff688.d12718",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "Off",
+                "value": 0,
+                "type": "num"
+            },
+            {
+                "label": "Auto with Stop",
+                "value": 1,
+                "type": "num"
+            },
+            {
+                "label": "Auto without Stop",
+                "value": 2,
+                "type": "num"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "x": 520,
+        "y": 120,
+        "wires": [
+            [
+                "443f7b77.0bcac4"
+            ]
+        ]
     },
     {
         "id": "4c530e7e.e8b0b",
@@ -536,6 +534,17 @@
         "willQos": "0",
         "willRetain": "false",
         "willPayload": ""
+    },
+    {
+        "id": "84dff688.d12718",
+        "type": "ui_group",
+        "name": "Charger",
+        "tab": "71b60aacd9a8e005",
+        "order": 1,
+        "disp": true,
+        "width": "7",
+        "collapse": false,
+        "className": ""
     },
     {
         "id": "71b60aacd9a8e005",

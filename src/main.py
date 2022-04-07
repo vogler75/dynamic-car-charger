@@ -10,15 +10,13 @@ CAR_VEHICLE_LOADS = 2
 CAR_WAITING_FOR_VEHICLE = 3
 CAR_CHARGE_FINISHED = 4
 
-MQTT_CHARGER_STATUS = f"go-eCharger/{CHARGER_ID}/status"
-MQTT_CHARGER_REQUEST = f"go-eCharger/{CHARGER_ID}/cmd/req"
-
-g_mode = 1  # Auto-Charge 1...On 0...Off
+g_mode = 1  # Auto-Charge 1...On 2...On without Stopping Chargin 0...Off
 g_flow_ampere = 0.0
 g_act_loading_state = 0  # Off, MIN_AMPERE - MAX_AMPERE
 g_last_state_change_time = datetime.now()
 g_last_start_stop_time = datetime(1970, 1, 1)
 g_charger_status = None
+g_stop_counter = 0
 
 
 def get_flow(data):
@@ -34,7 +32,7 @@ def get_flow(data):
 
 
 def check_state(dt):
-    global g_flow_ampere, g_act_loading_state, g_last_state_change_time, g_last_start_stop_time
+    global g_flow_ampere, g_act_loading_state, g_last_state_change_time, g_last_start_stop_time, g_stop_counter
 
     if dt < g_last_state_change_time + timedelta(seconds=MIN_TIME_BETWEEN_STATE_CHANGE):
         return
@@ -54,14 +52,18 @@ def check_state(dt):
             new_loading_state = g_act_loading_state + int(flow_ampere)
 
     if new_loading_state is not None:
-        if new_loading_state < MIN_AMPERE:
-            if dt > g_last_state_change_time + timedelta(minutes=MIN_TIME_BETWEEN_START_STOP):
-                new_loading_state = 0
-            else:
+        if new_loading_state < MIN_AMPERE:  # Stop            
+            g_stop_counter += 1
+            print(dt, "Stop counter", g_stop_counter)            
+            if g_stop_counter <= MIN_TIME_BETWEEN_START_STOP or g_mode == 2:
                 new_loading_state = MIN_AMPERE
+            else:                
+                new_loading_state = 0
+        else:
+            g_stop_counter = 0
 
-        elif new_loading_state > MAX_AMPERE:                
-            new_loading_state = MAX_AMPERE        
+        if new_loading_state > MAX_AMPERE:  # Limit          
+            new_loading_state = MAX_AMPERE
 
     if new_loading_state is not None and g_act_loading_state != new_loading_state:
         print(dt, "Ampere", flow_ampere, "Act", g_act_loading_state, "New", new_loading_state)
@@ -82,31 +84,25 @@ def check_state(dt):
             return
 
         if new_loading_state == 0 and g_act_loading_state > 0:
-            if dt > g_last_start_stop_time + timedelta(minutes=MIN_TIME_BETWEEN_START_STOP):
-                print(dt, "STOP Charging")
+            print(dt, "STOP Charging")
 
-                g_mqtt.publish(MQTT_CHARGER_REQUEST, "amx=" + str(MIN_AMPERE))
-                g_mqtt.publish(MQTT_CHARGER_REQUEST, "alw=0")
+            g_mqtt.publish(MQTT_CHARGER_REQUEST, "amx=" + str(MIN_AMPERE))
+            g_mqtt.publish(MQTT_CHARGER_REQUEST, "alw=0")
 
-                g_last_start_stop_time = dt
-                g_act_loading_state = new_loading_state                
-            else:
-                print(dt, "STOP not done!")
+            g_last_start_stop_time = dt
+            g_act_loading_state = new_loading_state                
 
         elif MIN_AMPERE <= new_loading_state <= MAX_AMPERE:
 
             if g_act_loading_state == 0:
-                if dt > g_last_start_stop_time + timedelta(minutes=MIN_TIME_BETWEEN_START_STOP):
-                    print(dt, "START Charging", new_loading_state)
+                print(dt, "START Charging", new_loading_state)
 
-                    g_mqtt.publish(MQTT_CHARGER_REQUEST, "amx=" + str(new_loading_state))
-                    g_mqtt.publish(MQTT_CHARGER_REQUEST, "alw=1")
+                g_mqtt.publish(MQTT_CHARGER_REQUEST, "amx=" + str(new_loading_state))
+                g_mqtt.publish(MQTT_CHARGER_REQUEST, "alw=1")
 
-                    g_last_start_stop_time = dt
-                    g_act_loading_state = new_loading_state
-                    g_mqtt.publish(MQTT_PROGRAM_OUTPUT, json.dumps({"Value": new_loading_state}))
-                else:
-                    print(dt, "START not done!")
+                g_last_start_stop_time = dt
+                g_act_loading_state = new_loading_state
+                g_mqtt.publish(MQTT_PROGRAM_OUTPUT, json.dumps({"Value": new_loading_state}))
 
             else:
                 print(dt, "UPDATE", new_loading_state)
@@ -119,7 +115,7 @@ def state_loop():
     global g_mode
     while True:
         time.sleep(10)
-        if g_mode == 1:
+        if g_mode > 0:
             check_state(datetime.now())
 
 
@@ -136,7 +132,7 @@ def on_message(client_data, user_data, message):
         payload = message.payload.decode('utf-8')
         data = json.loads(payload)
     except:
-        print("JSON Error!")
+        print("JSON Error!", message.payload)
         data = None
 
     if data is not None:
