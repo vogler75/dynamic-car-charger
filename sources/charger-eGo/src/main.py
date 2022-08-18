@@ -46,7 +46,7 @@ def check_state(dt):
             new_loading_state = int(flow_ampere)
 
     elif g_act_loading_state > 0:
-        if flow_ampere <= -1:
+        if flow_ampere <= 0:
             new_loading_state = g_act_loading_state + int(flow_ampere)
         elif flow_ampere >= 1:
             new_loading_state = g_act_loading_state + int(flow_ampere)
@@ -132,14 +132,14 @@ def on_message(client_data, user_data, message):
         payload = message.payload.decode('utf-8')
         data = json.loads(payload)
     except:
-        print("JSON Error!", message.payload)
+        print(datetime.now(), "JSON Error!", message.topic, message.payload)
         data = None
 
     if data is not None:
         if message.topic == MQTT_PROGRAM_CONFIG:
             if "Mode" in data:
                 g_mode = data["Mode"]
-                print("Got mode " +str(g_mode))
+                print(datetime.now(), "Got mode " +str(g_mode))
         elif message.topic == MQTT_ELECTRICITY_FLOW:
             get_flow(data)
         elif message.topic == MQTT_CHARGER_STATUS:
@@ -148,10 +148,10 @@ def on_message(client_data, user_data, message):
             alw = int(data["alw"])
             if alw == 0 and g_act_loading_state != 0:
                 g_act_loading_state = 0
-                print("Got Loading State 0 from Charger!")
+                print(datetime.now(), "Got Loading State 0 from Charger!")
             elif alw == 1 and g_act_loading_state != amp:
                 g_act_loading_state = amp
-                print("Got Loading State " + str(amp) + " from Charger!")
+                print(datetime.now(), "Got Loading State " + str(amp) + " from Charger!")
                 
             g_mqtt.publish(MQTT_PROGRAM_OUTPUT, json.dumps({"Value": amp * alw}))                
 
@@ -162,4 +162,4 @@ g_mqtt.on_message = on_message
 g_mqtt.connect("nuc1.rocworks.local", 1883, 60)
 g_mqtt.loop_start()
 threading.Thread(target=state_loop).start()
-print("Started.")
+print(datetime.now(), "Started.")
